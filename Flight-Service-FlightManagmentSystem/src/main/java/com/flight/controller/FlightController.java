@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +29,9 @@ public class FlightController {
 	public List<FlightWrapper> searchFligght(@RequestParam String departure,@RequestParam String arrival) {
 		return flightService.getFlightDetails(departure, arrival);
 	}
+	 @GetMapping("/inventory/{id}")
+	    public FlightInventory getInventoryById(@PathVariable Integer id) {
+	        return flightService.getInventoryById(id);
+	    }
 	
 }
