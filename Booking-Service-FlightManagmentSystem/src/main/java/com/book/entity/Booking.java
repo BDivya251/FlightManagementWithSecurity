@@ -19,8 +19,8 @@ import java.util.UUID;
 @Data
 public class Booking {
 	@Id
-	@GeneratedValue(strategy=GenerationType.UUID)
-    private UUID pnr;
+//	@GeneratedValue(strategy=GenerationType.AUTO)
+    private String pnr;
 
     private String email;          
 

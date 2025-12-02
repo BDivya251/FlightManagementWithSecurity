@@ -12,6 +12,6 @@ import com.book.entity.Booking;
 //import com.flight.entity.Booking;
 
 @Repository
-public interface BookingRepository extends JpaRepository<Booking,UUID>{
+public interface BookingRepository extends JpaRepository<Booking,String>{
 	public List<Booking> findByEmail(String email);
 }

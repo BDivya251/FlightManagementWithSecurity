@@ -23,7 +23,7 @@ public class BookingController {
 	private BookingService bookingService;
 	
 	@PostMapping("/booking")
-	public UUID saveBook(@RequestBody BookingWrapper bookingWrapper) {
+	public String saveBook(@RequestBody BookingWrapper bookingWrapper) {
 		return bookingService.saveBooking(bookingWrapper);
 	}
 	
@@ -33,11 +33,11 @@ public class BookingController {
 	}
 	
 	@GetMapping("/ticket")
-	public Booking getBook(@RequestParam UUID id) {
+	public Booking getBook(@RequestParam String id) {
 		return bookingService.getBooking(id);
 	}
 	@DeleteMapping("/booking/cancel")
-	public void delBooking(@RequestParam UUID id) {
+	public void delBooking(@RequestParam String id) {
 		bookingService.cancelBooking(id);
 	}
 }
