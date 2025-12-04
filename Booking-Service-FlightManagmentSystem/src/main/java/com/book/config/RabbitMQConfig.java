@@ -15,52 +15,46 @@ import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 @EnableRabbit
 public class RabbitMQConfig {
 
-    public static final String EMAIL_QUEUE = "email-queue";
-    public static final String EMAIL_EXCHANGE = "email-exchange";
-    public static final String EMAIL_ROUTING_KEY = "email.routing.key";
+	public static final String EMAIL_QUEUE = "email-queue";
+	public static final String EMAIL_EXCHANGE = "email-exchange";
+	public static final String EMAIL_ROUTING_KEY = "email.routing.key";
 
-    @Bean
-    public Queue emailQueue() {
-        return new Queue(EMAIL_QUEUE, true);
-    }
+	@Bean
+	public Queue emailQueue() {
+		return new Queue(EMAIL_QUEUE, true);
+	}
 
-    @Bean
-    public TopicExchange emailExchange() {
-        return new TopicExchange(EMAIL_EXCHANGE);
-    }
+	@Bean
+	public TopicExchange emailExchange() {
+		return new TopicExchange(EMAIL_EXCHANGE);
+	}
 
-    @Bean
-    public Binding emailBinding() {
-        return BindingBuilder
-                .bind(emailQueue())
-                .to(emailExchange())
-                .with(EMAIL_ROUTING_KEY);
-    }
+	@Bean
+	public Binding emailBinding() {
+		return BindingBuilder.bind(emailQueue()).to(emailExchange()).with(EMAIL_ROUTING_KEY);
+	}
 
-    @Bean
-    public JacksonJsonMessageConverter jacksonJsonMessageConverter() {
-        return new JacksonJsonMessageConverter();
-    }
+	@Bean
+	public JacksonJsonMessageConverter jacksonJsonMessageConverter() {
+		return new JacksonJsonMessageConverter();
+	}
 
-    @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
-            ConnectionFactory connectionFactory,
-            JacksonJsonMessageConverter converter) {
+	@Bean
+	public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory,
+			JacksonJsonMessageConverter converter) {
 
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory);
-        factory.setMessageConverter(converter);
-        return factory;
-    }
+		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+		factory.setConnectionFactory(connectionFactory);
+		factory.setMessageConverter(converter);
+		return factory;
+	}
 
-    @Bean
-    public RabbitTemplate rabbitTemplate(
-            ConnectionFactory connectionFactory,
-            JacksonJsonMessageConverter converter) {
+	@Bean
+	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, JacksonJsonMessageConverter converter) {
 
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(converter);
-        return template;
-    }
-    
+		RabbitTemplate template = new RabbitTemplate(connectionFactory);
+		template.setMessageConverter(converter);
+		return template;
+	}
+
 }

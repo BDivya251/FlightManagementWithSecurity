@@ -9,7 +9,7 @@ import com.flight.entity.FlightInventory;
 import com.flight.entity.FlightWrapper;
 
 @Repository
-public interface FlightRepository extends JpaRepository<FlightInventory,Integer>{
-	public List<FlightInventory> findByDepartureAndArrival(String departure,String arrival);
+public interface FlightRepository extends JpaRepository<FlightInventory, Integer> {
+	public List<FlightInventory> findByDepartureAndArrival(String departure, String arrival);
 //	public List<FlightWrapper> find
 }

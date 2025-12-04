@@ -17,6 +17,8 @@ import com.book.service.BookingEmailEvent;
 import com.book.entity.Booking;
 import com.book.entity.BookingWrapper;
 import com.book.entity.FlightInventory;
+import com.book.exceptions.AlreadyCancelled;
+import com.book.exceptions.PnrNotFoundException;
 import com.book.feign.FlightClient;
 import com.book.repository.BookingRepository;
 
@@ -29,17 +31,18 @@ public class BookingService {
 	private BookingRepository bookingRepository;
 	@Autowired
 	private FlightClient flightClient;
-	  @Autowired
-	    private RabbitTemplate rabbitTemplate;
-	@CircuitBreaker(name="flight-service",fallbackMethod="flightServerFallBack")
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
+
+	@CircuitBreaker(name = "flight-service", fallbackMethod = "flightServerFallBack")
 	public String saveBooking(BookingWrapper bookingWrapper) {
 		FlightInventory flight = flightClient.getInventoryById(bookingWrapper.getFlightId());
-		if(flight==null) {
+		if (flight == null) {
 			throw new RuntimeException("Flight inventory not found");
 		}
 		Booking book = new Booking();
-		LocalDate ld= LocalDate.now();
-		String pnr = UUID.randomUUID().toString().substring(0,10);
+		LocalDate ld = LocalDate.now();
+		String pnr = UUID.randomUUID().toString().substring(0, 10);
 		book.setPnr(pnr);
 //		String pnr1 = UUID.randomUUID().toString();
 //		book.setPnr(pnr1);
@@ -50,33 +53,34 @@ public class BookingService {
 		book.setInventoryId(flight.getId());
 		book.setSeatsBooked(bookingWrapper.getSeatsBooked());
 		book.setStatus("Booked");
-		book.setTotalAmount(bookingWrapper.getSeatsBooked()*flight.getTicketPrice());
-		Booking b=bookingRepository.save(book);
+		book.setTotalAmount(bookingWrapper.getSeatsBooked() * flight.getTicketPrice());
+		Booking b = bookingRepository.save(book);
 		System.out.println(" About to get response");
 
-		BookingEmailEvent event=new BookingEmailEvent(   b.getPnr(),
-                b.getEmail(),
-                "Your booking with PNR " + b.getPnr() + " is confirmed!");
-		 rabbitTemplate.convertAndSend(
-	                RabbitMQConfig.EMAIL_EXCHANGE,
-	                RabbitMQConfig.EMAIL_ROUTING_KEY,
-	                event
-	        );
+		BookingEmailEvent event = new BookingEmailEvent(b.getPnr(), b.getEmail(),
+				"Your booking with PNR " + b.getPnr() + " is confirmed!");
+		rabbitTemplate.convertAndSend(RabbitMQConfig.EMAIL_EXCHANGE, RabbitMQConfig.EMAIL_ROUTING_KEY, event);
 		return pnr;
-		}
-	public String flightServerFallBack(BookingWrapper bookingWrapper,Throwable ex) {
-		return null;
 	}
-	public Booking getBooking(String pnr){
+
+	public String flightServerFallBack(BookingWrapper bookingWrapper, Throwable ex) {
+		return "Flight Service is Down";
+	}
+
+	public Booking getBooking(String pnr) {
 		return bookingRepository.findById(pnr).get();
 	}
+
 	public void cancelBooking(String pnr) {
-		Booking b=bookingRepository.findById(pnr).orElseThrow(()-> new RuntimeException("wrong pnr number"));
+		Booking b = bookingRepository.findById(pnr).orElseThrow(() -> new PnrNotFoundException("wrong pnr number"));
+		if (b.getStatus().equals("Cancelled")) {
+			throw new AlreadyCancelled("Flight already cancelled");
+		}
 		b.setStatus("Cancelled");
 		bookingRepository.save(b);
 	}
-	
-	public List<Booking> getBookingByE(String email){
+
+	public List<Booking> getBookingByE(String email) {
 		return bookingRepository.findByEmail(email);
 	}
 }

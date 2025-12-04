@@ -1,6 +1,5 @@
 package com.book.entity;
 
-
 import java.sql.Date;
 
 import jakarta.persistence.Entity;
@@ -13,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.UUID;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,19 +20,19 @@ import java.util.UUID;
 public class Booking {
 	@Id
 //	@GeneratedValue(strategy=GenerationType.AUTO)
-    private String pnr;
+	private String pnr;
 
-    private String email;          
+	private String email;
 
-    private String status;         
+	private String status;
 
-    private Integer seatsBooked;   
+	private Integer seatsBooked;
 
-    private Float totalAmount;     
+	private Float totalAmount;
 
 //    @ManyToOne
 //    @JoinColumn(name = "inventory_id")
 //    private FlightInventory flightInventory; 
-    private Integer inventoryId;
-    private Date bookingDate;
+	private Integer inventoryId;
+	private Date bookingDate;
 }

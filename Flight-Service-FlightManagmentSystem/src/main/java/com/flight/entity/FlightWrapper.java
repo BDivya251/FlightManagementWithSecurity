@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FlightWrapper {
-	
+
 	private String flightNumber;
-	private String departure; 
+	private String departure;
 	private String arrival;
 	private Date travelDate;
 	private Time departureTime;

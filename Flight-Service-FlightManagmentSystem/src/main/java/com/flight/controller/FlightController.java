@@ -20,18 +20,20 @@ import com.flight.service.FlightService;
 public class FlightController {
 	@Autowired
 	private FlightService flightService;
-	
+
 	@PostMapping("/airline/inventary/add")
 	public FlightInventory addFlights(@RequestBody FlightInventory flight) {
 		return flightService.addFlightInventory(flight);
 	}
+
 	@GetMapping("/search")
-	public List<FlightWrapper> searchFligght(@RequestParam String departure,@RequestParam String arrival) {
+	public List<FlightWrapper> searchFligght(@RequestParam String departure, @RequestParam String arrival) {
 		return flightService.getFlightDetails(departure, arrival);
 	}
-	 @GetMapping("/inventory/{id}")
-	    public FlightInventory getInventoryById(@PathVariable Integer id) {
-	        return flightService.getInventoryById(id);
-	    }
-	
+
+	@GetMapping("/inventory/{id}")
+	public FlightInventory getInventoryById(@PathVariable Integer id) {
+		return flightService.getInventoryById(id);
+	}
+
 }

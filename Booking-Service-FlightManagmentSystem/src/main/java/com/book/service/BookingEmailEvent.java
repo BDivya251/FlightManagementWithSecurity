@@ -1,6 +1,5 @@
 package com.book.service;
 
-
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookingEmailEvent implements Serializable {
 
-    private String pnr;
-    private String email;
-    private String message; // simple text for now
+	private String pnr;
+	private String email;
+	private String message; // simple text for now
 }

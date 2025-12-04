@@ -12,7 +12,7 @@ import com.flight.entity.FlightWrapper;
 public class Converters {
 	public FlightWrapper mapToWrapper(FlightInventory flight) {
 
-		FlightWrapper wrapper =new FlightWrapper();
+		FlightWrapper wrapper = new FlightWrapper();
 		wrapper.setArrival(flight.getArrival());
 		wrapper.setFlightNumber(flight.getFlightNumber());
 		wrapper.setDeparture(flight.getDeparture());

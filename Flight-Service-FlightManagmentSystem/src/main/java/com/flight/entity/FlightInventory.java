@@ -17,14 +17,14 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 public class FlightInventory {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-    private String flightNumber;
-    private String departure;           
-    private String arrival;             
-    private Date travelDate;          
-    private Time departureTime;      
-    private Time arrivalTime;         
-    private Integer availableSeats;
-    private float ticketPrice;
+	private String flightNumber;
+	private String departure;
+	private String arrival;
+	private Date travelDate;
+	private Time departureTime;
+	private Time arrivalTime;
+	private Integer availableSeats;
+	private float ticketPrice;
 }
