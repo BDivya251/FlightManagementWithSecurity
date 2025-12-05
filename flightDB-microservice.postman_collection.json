@@ -1,0 +1,250 @@
+{
+	"info": {
+		"_postman_id": "10d08238-f5eb-446a-a913-05c5e7137a49",
+		"name": "flightDB-microservice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33782887"
+	},
+	"item": [
+		{
+			"name": "add inventory",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"flightNumber\": \"AI203\",\r\n  \"departure\": \"Hyderabad\",\r\n  \"arrival\": \"Delhi\",\r\n  \"travelDate\": \"2025-12-20\",\r\n  \"departureTime\": \"08:30:00\",\r\n  \"arrivalTime\": \"10:45:00\",\r\n  \"availableSeats\": 180,\r\n  \"ticketPrice\": 5500.0\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8123/flight-service/flight/airline/inventary/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"flight-service",
+						"flight",
+						"airline",
+						"inventary",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8123/flight-service/flight/search?arrival=Delhi&departure=Hyderabad",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"flight-service",
+						"flight",
+						"search"
+					],
+					"query": [
+						{
+							"key": "arrival",
+							"value": "Delhi"
+						},
+						{
+							"key": "departure",
+							"value": "Hyderabad"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "book ticket",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"divyabathini08@gmail.com\",\r\n    \"seatsBooked\":3,\r\n    \"flightId\":2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8123/booking-service/flight/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"booking-service",
+						"flight",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get by PNR",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8123/booking-service/flight/ticket?id=203de36a-1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"booking-service",
+						"flight",
+						"ticket"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "203de36a-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cancel ticket",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8123/booking-service/flight/booking/cancel?id=203de36a-1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"booking-service",
+						"flight",
+						"booking",
+						"cancel"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "203de36a-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get list by email",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8123/booking-service/flight/booking/history?email=divyabathini08@gmail.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"booking-service",
+						"flight",
+						"booking",
+						"history"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "divyabathini08@gmail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add invent",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"flightNumber\": \"AI202\",\r\n  \"departure\": \"Hyderabad\",\r\n  \"arrival\": \"Delhi\",\r\n  \"travelDate\": \"2025-12-10\",\r\n  \"departureTime\": \"08:45:00\",\r\n  \"arrivalTime\": \"11:15:00\",\r\n  \"availableSeats\": 120,\r\n  \"ticketPrice\": 5499.00\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8123/flight-service/flight/airline/inventary/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"flight-service",
+						"flight",
+						"airline",
+						"inventary",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"flightNumber\": \"AI202\",\r\n  \"departure\": \"Hyderabad\",\r\n  \"arrival\": \"Delhi\",\r\n  \"travelDate\": \"2025-12-10\",\r\n  \"departureTime\": \"08:45:00\",\r\n  \"arrivalTime\": \"11:15:00\",\r\n  \"availableSeats\": 120,\r\n  \"ticketPrice\": 5499.00\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8123/flight-service/flight/airline/inventary/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8123",
+					"path": [
+						"flight-service",
+						"flight",
+						"airline",
+						"inventary",
+						"add"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
