@@ -21,7 +21,9 @@ import com.book.entity.Booking;
 import com.book.entity.BookingWrapper;
 import com.book.entity.FlightInventory;
 import com.book.exceptions.AlreadyCancelled;
+import com.book.exceptions.NoEnoughSeatNumbers;
 import com.book.exceptions.PnrNotFoundException;
+import com.book.exceptions.SeatsNotAvailableException;
 import com.book.feign.FlightClient;
 import com.book.repository.BookingRepository;
 import com.book.service.BookingEmailEvent;
@@ -59,7 +61,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void testSaveBookingSuccess() {
+    void testSaveBookingSuccess() throws SeatsNotAvailableException, NoEnoughSeatNumbers {
         when(flightClient.getInventoryById(1)).thenReturn(flight);
 
         Booking saved = new Booking();

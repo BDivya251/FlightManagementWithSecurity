@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.book.entity.Booking;
 import com.book.entity.BookingWrapper;
+import com.book.exceptions.NoEnoughSeatNumbers;
+import com.book.exceptions.SeatsNotAvailableException;
 import com.book.service.BookingService;
 @RequestMapping("/flight")
 @RestController
@@ -24,7 +26,7 @@ public class BookingController {
 	private BookingService bookingService;
 	
 	@PostMapping("/booking")
-	public String saveBook(@RequestBody BookingWrapper bookingWrapper) {
+	public String saveBook(@RequestBody BookingWrapper bookingWrapper) throws SeatsNotAvailableException,NoEnoughSeatNumbers {
 		return bookingService.saveBooking(bookingWrapper);
 	}
 	

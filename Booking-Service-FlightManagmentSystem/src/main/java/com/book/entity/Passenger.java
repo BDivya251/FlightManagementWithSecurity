@@ -1,0 +1,23 @@
+package com.book.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class Passenger {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String name;
+    private Integer age;
+    private Integer seatNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
+}

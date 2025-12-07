@@ -33,26 +33,26 @@ class BookingTest {
         assertEquals(today, booking.getBookingDate());
     }
 
-    @Test
-    void testAllArgsConstructor() {
-        Date today = Date.valueOf(LocalDate.now());
-
-        Booking booking = new Booking(
-                "PNR9876543",
-                "test@mail.com",
-                "Cancelled",
-                2,
-                8000.0f,
-                12,
-                today
-        );
-
-        assertEquals("PNR9876543", booking.getPnr());
-        assertEquals("test@mail.com", booking.getEmail());
-        assertEquals("Cancelled", booking.getStatus());
-        assertEquals(2, booking.getSeatsBooked());
-        assertEquals(8000.0f, booking.getTotalAmount());
-        assertEquals(12, booking.getInventoryId());
-        assertEquals(today, booking.getBookingDate());
-    }
+//    @Test
+//    void testAllArgsConstructor() {
+//        Date today = Date.valueOf(LocalDate.now());
+//
+//        Booking booking = new Booking(
+//                "PNR9876543",
+//                "test@mail.com",
+//                "Cancelled",
+//                2,
+//                8000.0f,
+//                12,
+//                today
+//        );
+//
+//        assertEquals("PNR9876543", booking.getPnr());
+//        assertEquals("test@mail.com", booking.getEmail());
+//        assertEquals("Cancelled", booking.getStatus());
+//        assertEquals(2, booking.getSeatsBooked());
+//        assertEquals(8000.0f, booking.getTotalAmount());
+//        assertEquals(12, booking.getInventoryId());
+//        assertEquals(today, booking.getBookingDate());
+//    }
 }

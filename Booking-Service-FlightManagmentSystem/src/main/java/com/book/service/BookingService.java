@@ -18,7 +18,9 @@ import com.book.entity.Booking;
 import com.book.entity.BookingWrapper;
 import com.book.entity.FlightInventory;
 import com.book.exceptions.AlreadyCancelled;
+import com.book.exceptions.NoEnoughSeatNumbers;
 import com.book.exceptions.PnrNotFoundException;
+import com.book.exceptions.SeatsNotAvailableException;
 import com.book.feign.FlightClient;
 import com.book.repository.BookingRepository;
 
@@ -35,14 +37,17 @@ public class BookingService {
 	private RabbitTemplate rabbitTemplate;
 
 	@CircuitBreaker(name = "flight-service", fallbackMethod = "flightServerFallBack")
-	public String saveBooking(BookingWrapper bookingWrapper) {
+	public String saveBooking(BookingWrapper bookingWrapper) throws SeatsNotAvailableException, NoEnoughSeatNumbers {
 		FlightInventory flight = flightClient.getInventoryById(bookingWrapper.getFlightId());
 		if (flight == null) {
 			throw new RuntimeException("Flight inventory not found");
 		}
+		if(bookingWrapper.getSeatsBooked()!=(bookingWrapper.getSeatNumbers().size())) {
+			throw new NoEnoughSeatNumbers("Seat numbers and list of seats are not matching");
+		}
 		Booking book = new Booking();
 		LocalDate ld = LocalDate.now();
-		String pnr = UUID.randomUUID().toString().substring(0, 10);
+		String pnr = UUID.randomUUID().toString();
 		book.setPnr(pnr);
 //		String pnr1 = UUID.randomUUID().toString();
 //		book.setPnr(pnr1);
@@ -52,6 +57,14 @@ public class BookingService {
 		book.setEmail(bookingWrapper.getEmail());
 		book.setInventoryId(flight.getId());
 		book.setSeatsBooked(bookingWrapper.getSeatsBooked());
+		book.setSeatNumbers(bookingWrapper.getSeatNumbers());
+		int seats=flight.getAvailableSeats();
+		if(seats-bookingWrapper.getSeatsBooked()<=0) {
+			throw new SeatsNotAvailableException("seats not available");
+		}
+		else {
+		flight.setAvailableSeats(seats-bookingWrapper.getSeatsBooked());
+		}
 		book.setStatus("Booked");
 		book.setTotalAmount(bookingWrapper.getSeatsBooked() * flight.getTicketPrice());
 		Booking b = bookingRepository.save(book);

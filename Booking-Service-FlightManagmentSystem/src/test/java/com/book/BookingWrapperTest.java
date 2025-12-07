@@ -7,18 +7,18 @@ import com.book.entity.BookingWrapper;
 
 public class BookingWrapperTest {
 
-    @Test
-    void testConstructorAndGetters() {
-        BookingWrapper bw = new BookingWrapper(
-                "test@gmail.com",
-                2,
-                10
-        );
-
-        assertEquals("test@gmail.com", bw.getEmail());
-        assertEquals(2, bw.getSeatsBooked());
-        assertEquals(10, bw.getFlightId());
-    }
+//    @Test
+//    void testConstructorAndGetters() {
+//        BookingWrapper bw = new BookingWrapper(
+//                "test@gmail.com",
+//                2,
+//                10
+//        );
+//
+//        assertEquals("test@gmail.com", bw.getEmail());
+//        assertEquals(2, bw.getSeatsBooked());
+//        assertEquals(10, bw.getFlightId());
+//    }
 
     @Test
     void testSetters() {

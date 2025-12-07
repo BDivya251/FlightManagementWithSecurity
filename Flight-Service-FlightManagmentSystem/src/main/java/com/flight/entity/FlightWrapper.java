@@ -18,4 +18,5 @@ public class FlightWrapper {
 	private Date travelDate;
 	private Time departureTime;
 	private float ticketPrice;
+	private Airline airline;
 }
