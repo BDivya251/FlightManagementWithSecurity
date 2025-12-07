@@ -17,6 +17,8 @@ public class FlightWrapper {
 	private String arrival;
 	private Date travelDate;
 	private Time departureTime;
+	private Time arrivalTime;
+	private Integer availableSeats;
 	private float ticketPrice;
-	private Airline airline;
+	private Integer airline;
 }

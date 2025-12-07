@@ -27,4 +27,11 @@ public class FlightInventory {
 	private Time arrivalTime;
 	private Integer availableSeats;
 	private float ticketPrice;
+	
+	@ManyToOne
+	@JoinColumn(name="airline_id")
+	private Airline airline;
+
+	
+	
 }

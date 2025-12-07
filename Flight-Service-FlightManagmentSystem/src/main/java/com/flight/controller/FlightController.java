@@ -22,7 +22,7 @@ public class FlightController {
 	private FlightService flightService;
 
 	@PostMapping("/airline/inventary/add")
-	public FlightInventory addFlights(@RequestBody FlightInventory flight) {
+	public FlightInventory addFlights(@RequestBody FlightWrapper flight) {
 		return flightService.addFlightInventory(flight);
 	}
 
