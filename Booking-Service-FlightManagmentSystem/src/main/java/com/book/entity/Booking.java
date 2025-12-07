@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,13 +36,14 @@ public class Booking {
 
 	private Float totalAmount;
 	
-	private List<Integer> seatNumbers;
+//	private List<Integer> seatNumbers;
 	 @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+	 @JsonBackReference
 	    private List<Passenger> passengers;
 
 //    @ManyToOne
 //    @JoinColumn(name = "inventory_id")
 //    private FlightInventory flightInventory; 
-	private Integer inventoryId;
+	private String flightNumber;
 	private Date bookingDate;
 }

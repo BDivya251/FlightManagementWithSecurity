@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +27,8 @@ public class BookingController {
 	private BookingService bookingService;
 	
 	@PostMapping("/booking")
-	public String saveBook(@RequestBody BookingWrapper bookingWrapper) throws SeatsNotAvailableException,NoEnoughSeatNumbers {
-		return bookingService.saveBooking(bookingWrapper);
+	public ResponseEntity<String> saveBook(@RequestBody BookingWrapper bookingWrapper) throws SeatsNotAvailableException,NoEnoughSeatNumbers {
+		return new ResponseEntity<>(bookingService.saveBooking(bookingWrapper),HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/booking/history")

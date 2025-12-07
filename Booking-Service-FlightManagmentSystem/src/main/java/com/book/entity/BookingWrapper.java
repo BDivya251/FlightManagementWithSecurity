@@ -19,5 +19,7 @@ public class BookingWrapper {
 	private Integer seatsBooked;
 	@NotNull(message="FlightId is required")
 	private Integer flightId;
-	private List<Integer> seatNumbers;
+	@NotNull(message="passenger details are required")
+	private List<PassengerWrapper> passenger;
+//	private List<Integer> seatNumbers;
 }

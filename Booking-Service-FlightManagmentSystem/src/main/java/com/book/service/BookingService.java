@@ -7,22 +7,26 @@ import com.book.config.RabbitMQConfig;
 
 import java.time.LocalDate;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.book.service.BookingEmailEvent;
-
+import com.book.util.Converters;
 import com.book.entity.Booking;
 import com.book.entity.BookingWrapper;
 import com.book.entity.FlightInventory;
+import com.book.entity.Passenger;
+import com.book.entity.PassengerWrapper;
 import com.book.exceptions.AlreadyCancelled;
 import com.book.exceptions.NoEnoughSeatNumbers;
 import com.book.exceptions.PnrNotFoundException;
 import com.book.exceptions.SeatsNotAvailableException;
 import com.book.feign.FlightClient;
 import com.book.repository.BookingRepository;
+import com.book.repository.PassengerRepository;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
@@ -35,16 +39,17 @@ public class BookingService {
 	private FlightClient flightClient;
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
-
+	@Autowired
+	private PassengerRepository passengerRepository;
+	@Autowired
+	private Converters converters;
 	@CircuitBreaker(name = "flight-service", fallbackMethod = "flightServerFallBack")
 	public String saveBooking(BookingWrapper bookingWrapper) throws SeatsNotAvailableException, NoEnoughSeatNumbers {
 		FlightInventory flight = flightClient.getInventoryById(bookingWrapper.getFlightId());
 		if (flight == null) {
 			throw new RuntimeException("Flight inventory not found");
 		}
-		if(bookingWrapper.getSeatsBooked()!=(bookingWrapper.getSeatNumbers().size())) {
-			throw new NoEnoughSeatNumbers("Seat numbers and list of seats are not matching");
-		}
+		
 		Booking book = new Booking();
 		LocalDate ld = LocalDate.now();
 		String pnr = UUID.randomUUID().toString();
@@ -55,9 +60,15 @@ public class BookingService {
 		Date d = Date.valueOf(ld);
 		book.setBookingDate(d);
 		book.setEmail(bookingWrapper.getEmail());
-		book.setInventoryId(flight.getId());
+		book.setFlightNumber(flight.getFlightNumber());
 		book.setSeatsBooked(bookingWrapper.getSeatsBooked());
-		book.setSeatNumbers(bookingWrapper.getSeatNumbers());
+		List<Passenger> passengers = new ArrayList<>();
+		for(PassengerWrapper p:bookingWrapper.getPassenger()) {
+			Passenger psg = converters.convertToPassenger(p);
+			passengers.add(psg);
+			passengerRepository.save(psg);
+		}
+		book.setPassengers(passengers);
 		int seats=flight.getAvailableSeats();
 		if(seats-bookingWrapper.getSeatsBooked()<=0) {
 			throw new SeatsNotAvailableException("seats not available");
@@ -90,6 +101,10 @@ public class BookingService {
 			throw new AlreadyCancelled("Flight already cancelled");
 		}
 		b.setStatus("Cancelled");
+		BookingEmailEvent event = new BookingEmailEvent(b.getPnr(), b.getEmail(),
+				"Your booking with PNR " + b.getPnr() + " is cancelled!");
+		rabbitTemplate.convertAndSend(RabbitMQConfig.EMAIL_EXCHANGE, RabbitMQConfig.EMAIL_ROUTING_KEY, event);
+		
 		bookingRepository.save(b);
 	}
 

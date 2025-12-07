@@ -1,5 +1,6 @@
 package com.book;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyCancelled.class)
     public ResponseEntity<String> handleCancelledFlight(AlreadyCancelled ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT); 
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidation(MethodArgumentNotValidException ex) {
+        String msg = ex.getBindingResult().getFieldError().getDefaultMessage();
+        System.out.println("Validation failed: " + msg); 
+        return ResponseEntity.badRequest().body(msg);
     }
     
     @ExceptionHandler(PnrNotFoundException.class)
