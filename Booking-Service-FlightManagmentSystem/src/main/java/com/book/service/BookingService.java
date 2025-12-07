@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.book.entity.Passenger;
 import com.book.entity.PassengerWrapper;
 import com.book.exceptions.AlreadyCancelled;
 import com.book.exceptions.NoEnoughSeatNumbers;
+import com.book.exceptions.NotAValidFlightId;
 import com.book.exceptions.PnrNotFoundException;
 import com.book.exceptions.SeatsNotAvailableException;
 import com.book.feign.FlightClient;
@@ -45,37 +47,51 @@ public class BookingService {
 	private Converters converters;
 	@CircuitBreaker(name = "flight-service", fallbackMethod = "flightServerFallBack")
 	public String saveBooking(BookingWrapper bookingWrapper) throws SeatsNotAvailableException, NoEnoughSeatNumbers {
-		FlightInventory flight = flightClient.getInventoryById(bookingWrapper.getFlightId());
-		if (flight == null) {
-			throw new RuntimeException("Flight inventory not found");
+//		Optional<FlightInventory> flightOptional = Optional.ofNullable(flightClient.getInventoryById(bookingWrapper.getFlightId()));
+//		if (!flightOptional.isPresent()) {
+//			throw new NotAValidFlightId("Flight inventory not found");
+//		}
+		FlightInventory flight;
+		System.out.println("Calling Flight Service...");
+
+		try {
+		    flight = flightClient.getInventoryById(bookingWrapper.getFlightId());
+		} catch (Exception ex) {
+		    throw new NotAValidFlightId("Flight inventory not found");
 		}
-		
+
+//		FlightInventory flight=flightOptional.get();
 		Booking book = new Booking();
 		LocalDate ld = LocalDate.now();
 		String pnr = UUID.randomUUID().toString();
 		book.setPnr(pnr);
-//		String pnr1 = UUID.randomUUID().toString();
-//		book.setPnr(pnr1);
-
 		Date d = Date.valueOf(ld);
 		book.setBookingDate(d);
 		book.setEmail(bookingWrapper.getEmail());
 		book.setFlightNumber(flight.getFlightNumber());
 		book.setSeatsBooked(bookingWrapper.getSeatsBooked());
 		List<Passenger> passengers = new ArrayList<>();
-		for(PassengerWrapper p:bookingWrapper.getPassenger()) {
-			Passenger psg = converters.convertToPassenger(p);
-			passengers.add(psg);
-			passengerRepository.save(psg);
-		}
-		book.setPassengers(passengers);
+		List<Integer> bookedSeats = passengerRepository.getBookedSeatNumbers(flight.getFlightNumber());
 		int seats=flight.getAvailableSeats();
+		System.out.println(seats);
+		System.out.println(bookingWrapper.getSeatsBooked());
 		if(seats-bookingWrapper.getSeatsBooked()<=0) {
 			throw new SeatsNotAvailableException("seats not available");
 		}
 		else {
 		flight.setAvailableSeats(seats-bookingWrapper.getSeatsBooked());
 		}
+		for(PassengerWrapper p:bookingWrapper.getPassenger()) {
+			 if (bookedSeats.contains(p.getSeatNumber())) {
+			        throw new NoEnoughSeatNumbers("Seat " + p.getSeatNumber() + " already booked");
+			    }
+			Passenger psg = converters.convertToPassenger(p);
+			passengers.add(psg);
+			psg.setBooking(book);
+			passengerRepository.save(psg);
+		}
+		book.setPassengers(passengers);
+		
 		book.setStatus("Booked");
 		book.setTotalAmount(bookingWrapper.getSeatsBooked() * flight.getTicketPrice());
 		Booking b = bookingRepository.save(book);

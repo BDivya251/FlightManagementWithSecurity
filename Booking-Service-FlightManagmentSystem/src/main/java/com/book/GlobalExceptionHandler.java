@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
 import com.book.exceptions.AlreadyCancelled;
 import com.book.exceptions.NoEnoughSeatNumbers;
+import com.book.exceptions.NotAValidFlightId;
 import com.book.exceptions.PnrNotFoundException;
 import com.book.exceptions.SeatsNotAvailableException;
 
@@ -34,6 +35,10 @@ public class GlobalExceptionHandler {
     	return new ResponseEntity<>(ex.getMessage(),HttpStatus.BAD_REQUEST);
     }
     
+    @ExceptionHandler(NotAValidFlightId.class)
+    public ResponseEntity<String> handleNotAValidFlight(NotAValidFlightId ex){
+    	return new ResponseEntity<>(ex.getMessage(),HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(NoEnoughSeatNumbers.class)
     public ResponseEntity<String> handleNoSeatNumbers(NoEnoughSeatNumbers ex){
     	return new ResponseEntity<>(ex.getMessage(),HttpStatus.BAD_REQUEST);

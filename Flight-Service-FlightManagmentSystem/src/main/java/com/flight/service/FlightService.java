@@ -64,6 +64,6 @@ public class FlightService {
 	}
 
 	public FlightInventory getInventoryById(Integer id) {
-		return flightRepository.findById(id).orElseThrow(() -> new RuntimeException("Flight Inventory not found"));
+		return flightRepository.findById(id).orElseThrow(() -> new FlightNotFoundException("Flight Inventory not found"));
 	}
 }
