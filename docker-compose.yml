@@ -1,4 +1,14 @@
 services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: divya
+      MYSQL_DATABASE: flightdb
+    ports:
+      - "3307:3306"
+
   eureka-server:
     image: eureka-server
     container_name: eureka-server
