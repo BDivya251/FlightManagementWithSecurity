@@ -1,0 +1,2 @@
+The Flight Management System is a microservices-based application that enables users to search, book, and manage flight reservations securely. It implements distributed architecture using Spring Boot, Eureka, Config Server, API Gateway, and RabbitMQ, with JWT authentication and role-based access. The system ensures scalability and reliability through service discovery, centralized configuration, circuit breakers, and asynchronous email notifications.
+[Uploading Untitled.pdf…]()
