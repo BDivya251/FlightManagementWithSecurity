@@ -1,66 +1,74 @@
+version: '3.8'
+
 services:
+
   mysql:
     image: mysql:8
     container_name: mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: divya
-      MYSQL_DATABASE: flightdb
+    volumes:
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
     ports:
       - "3307:3306"
 
   eureka-server:
     image: eureka-server
     container_name: eureka-server
+    restart: always
+    depends_on:
+      - mysql
     ports:
       - "8761:8761"
 
   config-server:
     image: config-server
     container_name: config-server
+    restart: always
     depends_on:
       - eureka-server
     ports:
       - "8888:8888"
 
-  simple-security:
-    image: simple-security
-    container_name: simple-security
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
+    restart: always
     depends_on:
       - config-server
     ports:
-      - "8085:8085"
+      - "9090:9090"
+
+  simple-security:
+    image: simple-security
+    container_name: simple-security
+    restart: always
+    depends_on:
+      - mysql
+      - config-server
+      - eureka-server
     environment:
-      - spring_profiles_active=docker
+      - SPRING_PROFILES_ACTIVE=default
+    ports:
+      - "8085:8085"
 
   flight-service:
     image: flight-service
     container_name: flight-service
+    restart: always
     depends_on:
+      - mysql
       - config-server
     ports:
       - "8081:8081"
-    environment:
-      - spring_profiles_active=docker
 
   booking-service:
     image: booking-service
     container_name: booking-service
+    restart: always
     depends_on:
-      - flight-service
+      - mysql
       - config-server
     ports:
       - "8083:8083"
-    environment:
-      - spring_profiles_active=docker
-
-  api-gateway:
-    image: api-gateway
-    container_name: api-gateway
-    depends_on:
-      - booking-service
-      - simple-security
-    ports:
-      - "8123:8123"
-    environment:
-      - spring_profiles_active=docker
