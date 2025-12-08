@@ -54,12 +54,14 @@ public class BookingService {
 		FlightInventory flight;
 		System.out.println("Calling Flight Service...");
 
-		try {
+//		try {
 			System.out.println(bookingWrapper.getFlightId());
 		    flight = getFlightWithCircuitBreaker(bookingWrapper.getFlightId());
-		} catch (Exception ex) {
-		    throw new NotAValidFlightId("Flight inventory not found");
-		}
+//		} catch (Exception ex) {
+		    if(flight==null) {
+		    throw new NotAValidFlightId("Flight service is unavailable.Try again later ");
+		    }
+//		}
 
 //		FlightInventory flight=flightOptional.get();
 		if(bookingWrapper.getPassenger().size()!=bookingWrapper.getSeatsBooked()) {
@@ -112,8 +114,13 @@ public class BookingService {
 	    return flightClient.getInventoryById(id);
 	}
 
-	public String flightServerFallBack(BookingWrapper bookingWrapper, Throwable ex) {
-		return "Flight Service is Down";
+	public FlightInventory flightFallback(Integer id, Throwable ex) {
+		FlightInventory dummy = new FlightInventory();
+	    dummy.setId(id);
+	    dummy.setFlightNumber("N/A");
+	    dummy.setTicketPrice(0);
+	    dummy.setAvailableSeats(0);
+	    return null;
 	}
 
 	public Booking getBooking(String pnr) {
