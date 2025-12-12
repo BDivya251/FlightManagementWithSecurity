@@ -44,6 +44,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
         try {
             username = jwtUtil.extractUsername(token);
             role = jwtUtil.extractRole(token);
+            System.out.println("ROLE FROM TOKEN = " + role);
         } catch (Exception e) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
@@ -69,10 +70,10 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
                         return exchange.getResponse().setComplete();
                     }
 
-                    if (path.startsWith("/booking-service/") && !"ROLE_USER".equals(role)) {
-                        exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-                        return exchange.getResponse().setComplete();
-                    }
+//                    if (path.startsWith("/booking-service/") && !"ROLE_USER".equals(role)) {
+//                        exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+//                        return exchange.getResponse().setComplete();
+//                    }
 
                    
                     ServerWebExchange modifiedExchange = exchange.mutate()
@@ -81,7 +82,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
                                     .header("X-ROLE", role))
                             .build();
 
-                    return chain.filter(exchange);
+                    return chain.filter(modifiedExchange);
                 });
     }
 

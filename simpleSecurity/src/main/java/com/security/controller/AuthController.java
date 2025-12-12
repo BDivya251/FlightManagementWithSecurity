@@ -1,77 +1,9 @@
-//package com.security.controller;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.web.bind.annotation.*;
-//
-//import com.security.entity.TokenBlacklist;
-//import com.security.entity.User;
-//import com.security.repository.TokenBlacklistRepository;
-//import com.security.repository.UserRepository;
-//import com.security.util.JwtUtil;
-//
-//@RestController
-//public class AuthController {
-//	@Autowired
-//	private TokenBlacklistRepository blacklistRepo;
-//
-//    private final UserRepository repo;
-//    private final PasswordEncoder encoder;
-//    private final JwtUtil jwtUtil;
-//
-//    public AuthController(UserRepository repo, PasswordEncoder encoder, JwtUtil jwtUtil) {
-//        this.repo = repo;
-//        this.encoder = encoder;
-//        this.jwtUtil = jwtUtil;
-//    }
-//
-//    @PostMapping("/register")
-//    public String register(@RequestBody User user) {
-//    	 if (user.getRole() == null || user.getRole().isBlank()) {
-//    	        user.setRole("ROLE_USER"); 
-//    	    }
-//        user.setPassword(encoder.encode(user.getPassword()));
-////        user.setRole("USER");
-//        repo.save(user);
-//        return "Registered successfully";
-//    }
-//
-//    @PostMapping("/login")
-//    public String login(@RequestBody User user) {
-//        User dbUser = repo.findByUsername(user.getUsername());
-//        if (dbUser != null && encoder.matches(user.getPassword(), dbUser.getPassword())) {
-//            return jwtUtil.generateToken(dbUser); // send full user (role included)
-//        }
-//        return "Invalid username or password";
-//    }
-//
-//    @GetMapping("/hello")
-//    public String hello() {
-//        return "Hello, token verified!";
-//    }
-//    @PostMapping("/logout")
-//    public String logout(@RequestHeader("Authorization") String authHeader) {
-//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-//            String token = authHeader.substring(7);
-//            blacklistRepo.save(new TokenBlacklist(null, token));
-//            return "Logged out successfully";
-//        }
-//        return "Token missing";
-//    }
-//    @GetMapping("/admin")
-//    public String admin() {
-//        return "ADMIN ACCESS";
-//    }
-//
-//    @GetMapping("/user")
-//    public String user() {
-//        return "USER ACCESS";
-//    }
-//
-//}
+
 package com.security.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -97,11 +29,16 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
+    public ResponseEntity<String> register(@RequestBody User user) {
+    	User dbuser=repo.findByUsername(user.getUsername());
+    	if(dbuser!=null) {
+    		return new ResponseEntity("Already existed",HttpStatus.BAD_REQUEST);
+    	}
         user.setPassword(encoder.encode(user.getPassword()));
         // role must be ROLE_USER or ROLE_ADMIN
         repo.save(user);
-        return "Registered successfully";
+//        return "Registered successfully";
+        return new ResponseEntity("Registered Successfully",HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -114,13 +51,20 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public String logout(@RequestHeader("Authorization") String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
+    	 String token1 = authHeader.substring(7);
+
+ 	    //  check BLACKLIST
+ 	    if (blacklistRepo.existsByToken(token1)) {
+ 	        return new ResponseEntity("user already logged out",HttpStatus.UNAUTHORIZED); // token is logged out
+ 	    }
+    	if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             blacklistRepo.save(new TokenBlacklist(null, token));
-            return "Logged out successfully";
+            return new ResponseEntity("Logged out successfully",HttpStatus.NO_CONTENT);
         }
-        return "Token missing";
+    	return new ResponseEntity("user already logged out",HttpStatus.UNAUTHORIZED); // token is logged out
+  	   
     }
     
     @GetMapping("/validate-token")

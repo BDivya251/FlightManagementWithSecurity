@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,20 +28,24 @@ public class BookingController {
 	private BookingService bookingService;
 	
 	@PostMapping("/booking")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<String> saveBook(@RequestBody BookingWrapper bookingWrapper) throws SeatsNotAvailableException,NoEnoughSeatNumbers {
 		return new ResponseEntity<>(bookingService.saveBooking(bookingWrapper),HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/booking/history")
+	@PreAuthorize("hasAnyRole('USER','ADMIN')")
 	public List<Booking> getBookingByemail(@RequestParam String email){
 		return bookingService.getBookingByE(email);
 	}
 	
 	@GetMapping("/ticket")
+	@PreAuthorize("hasAnyRole('USER','ADMIN')")
 	public Booking getBook(@RequestParam String id) {
 		return bookingService.getBooking(id);
 	}
 	@DeleteMapping("/booking/cancel")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<Void> delBooking(@RequestParam String id) {
 		bookingService.cancelBooking(id);
 		return ResponseEntity.noContent().build();
