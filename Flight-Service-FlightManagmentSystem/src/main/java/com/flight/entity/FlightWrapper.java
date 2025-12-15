@@ -1,7 +1,13 @@
 package com.flight.entity;
 
-import java.sql.Date;
-import java.sql.Time;
+//import java.sql.Date;
+import java.time.LocalDate;
+//import java.sql.Date;
+//
+import java.time.LocalTime;
+//import java.sql.Time;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,11 +26,13 @@ public class FlightWrapper {
 	@NotBlank(message="arrival is required")
 	private String arrival;
 	@NotNull(message="travel date is required")
-	private Date travelDate;
+
+@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDate travelDate;
 	@NotNull(message="departure time is required")
-	private Time departureTime;
+	private LocalTime departureTime;
 	@NotNull(message="arrival time is required")
-	private Time arrivalTime;
+	private LocalTime arrivalTime;
 	@NotNull(message="availableseats are required")
 	private Integer availableSeats;
 	@NotNull(message="ticketprice is required")

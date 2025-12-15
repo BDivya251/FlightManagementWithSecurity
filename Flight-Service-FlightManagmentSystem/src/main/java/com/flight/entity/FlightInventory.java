@@ -1,7 +1,14 @@
 package com.flight.entity;
 
-import java.sql.Date;
-import java.sql.Time;
+import java.time.LocalDate;
+//import java.sql.Date;
+//
+import java.time.LocalTime;
+//
+//private LocalTime departureTime;
+//private LocalTime arrivalTime;
+
+//import java.sql.Time;
 
 import jakarta.annotation.Generated;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 @Entity
 @Data
@@ -22,9 +31,11 @@ public class FlightInventory {
 	private String flightNumber;
 	private String departure;
 	private String arrival;
-	private Date travelDate;
-	private Time departureTime;
-	private Time arrivalTime;
+
+@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDate travelDate;
+	private LocalTime departureTime;
+	private LocalTime arrivalTime;
 	private Integer availableSeats;
 	private float ticketPrice;
 	

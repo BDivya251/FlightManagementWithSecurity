@@ -1,6 +1,6 @@
 package com.flight.service;
 
-import java.sql.Date;
+//import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +31,13 @@ public class FlightService {
 	public FlightInventory addFlightInventory(FlightWrapper flight) {
 		FlightInventory flightIn = new FlightInventory();
 		Integer airlineNo=flight.getAirline();
+		System.out.println("after gettng airline");
 		Airline airline=airlineRepository.findById(airlineNo)
 				.orElseThrow(()->new FlightNotFoundException("Airline Not Found"));
 		Optional<FlightInventory> flightDup = flightRepository.getByFlightNumberAndDepartureAndArrival(flight.getFlightNumber() ,flight.getDeparture(),flight.getArrival());
+			System.out.println("after repo");
 		if(!flightDup.isPresent()) {
+			System.out.println("at starting");
 		flightIn.setAirline(airline);
 		
 		flightIn.setArrival(flight.getArrival());
@@ -45,6 +48,8 @@ public class FlightService {
 		flightIn.setFlightNumber(flight.getFlightNumber());
 		flightIn.setTicketPrice(flight.getTicketPrice());
 		flightIn.setTravelDate(flight.getTravelDate());
+//		flightIn.setAirline(flight);
+		System.out.println("at end");
 		return flightRepository.save(flightIn);}
 		else {
 			throw new FlightAlreadyExisted("Flight already existed");

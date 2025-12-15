@@ -124,7 +124,8 @@ public class BookingService {
 	}
 
 	public Booking getBooking(String pnr) {
-		return bookingRepository.findById(pnr).get();
+		return bookingRepository.findById(pnr).orElseThrow(()->
+		new PnrNotFoundException("pnr not found"));
 	}
 
 	public void cancelBooking(String pnr) {

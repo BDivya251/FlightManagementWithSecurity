@@ -19,6 +19,9 @@ public class Converters {
 		wrapper.setTravelDate(flight.getTravelDate());
 		wrapper.setDepartureTime(flight.getDepartureTime());
 		wrapper.setTicketPrice(flight.getTicketPrice());
+		wrapper.setAvailableSeats(flight.getAvailableSeats());
+		wrapper.setAirline(flight.getAirline().getId());
+		wrapper.setArrivalTime(flight.getArrivalTime());
 		return wrapper;
 	}
 }
