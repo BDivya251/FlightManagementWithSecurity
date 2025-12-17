@@ -1,6 +1,10 @@
 
 package com.security.controller;
 
+import java.security.Key;
+
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +17,13 @@ import com.security.repository.TokenBlacklistRepository;
 import com.security.repository.UserRepository;
 import com.security.util.JwtUtil;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
 @RestController
 public class AuthController {
-
+	 private final String SECRET = "mysecretkeymysecretkeymysecretkey"; // same as auth service
     @Autowired
     private TokenBlacklistRepository blacklistRepo;
 
@@ -30,10 +38,18 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
+    	System.out.println("regsitered"+user.getUsername());
+    	System.out.println(user.getPassword());
+//    	System.out.println()
     	User dbuser=repo.findByUsername(user.getUsername());
     	if(dbuser!=null) {
+    		System.out.println("Already existed");
     		return new ResponseEntity("Already existed",HttpStatus.BAD_REQUEST);
     	}
+    	if(user.getRole()==null) {
+    		user.setRole("USER");
+    	}
+    	System.out.println("passwordEncoding");
         user.setPassword(encoder.encode(user.getPassword()));
         // role must be ROLE_USER or ROLE_ADMIN
         repo.save(user);
@@ -65,6 +81,22 @@ public class AuthController {
         }
     	return new ResponseEntity("user already logged out",HttpStatus.UNAUTHORIZED); // token is logged out
   	   
+    }
+    private Key getSigningKey() {
+        byte[] keyBytes = SECRET.getBytes();
+        return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
+    }
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    @GetMapping("/getRole")
+    public String extractRole(@RequestBody String token) {
+        return extractAllClaims(token).get("role", String.class);
     }
     
     @GetMapping("/validate-token")

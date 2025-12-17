@@ -1,4 +1,5 @@
-FROM eclipse-temurin:21
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-COPY target/*.jar eureka-server.jar
-ENTRYPOINT ["java", "-jar", "eureka-server.jar"]
+COPY . .
+RUN ./mvnw clean package -DskipTests
+CMD ["sh", "-c", "java -jar target/*.jar"]

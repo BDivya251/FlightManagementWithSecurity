@@ -1,6 +1,5 @@
-FROM eclipse-temurin:21
-
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-COPY target/*.jar config-server.jar
-
-ENTRYPOINT ["java", "-jar", "config-server.jar"]
+COPY . .
+RUN ./mvnw clean package -DskipTests
+CMD ["sh", "-c", "java -jar target/*.jar"]
