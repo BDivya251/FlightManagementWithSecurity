@@ -1,5 +1,6 @@
 package com.flight.controller;
 
+//import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
+
+import com.flight.dto.FlightSearchResponseRoundTrip;
 import com.flight.entity.FlightInventory;
 import com.flight.entity.FlightWrapper;
 import com.flight.service.FlightService;
-
+import java.time.LocalDate;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,8 +36,20 @@ public class FlightController {
 	}
 
 	@GetMapping("/search")
-	public List<FlightWrapper> searchFligght(@RequestParam String departure, @RequestParam String arrival) {
-		return flightService.getFlightDetails(departure, arrival);
+	public List<FlightWrapper> searchFligght(@RequestParam String departure, @RequestParam String arrival,@RequestParam LocalDate date) {
+		return flightService.getFlightDetails(departure, arrival,date);
+	}
+	
+	@GetMapping("/search/round-trip")
+	public FlightSearchResponseRoundTrip searchRoundTripFlights(
+	        @RequestParam String departure,
+	        @RequestParam String arrival,
+	        @RequestParam LocalDate goingDate,
+	        @RequestParam LocalDate comingDate
+	) {
+	    return flightService.getRoundTripFlights(
+	            departure, arrival, goingDate, comingDate
+	    );
 	}
 
 	@GetMapping("/inventory/{id}")

@@ -22,4 +22,5 @@ public class BookingWrapper {
 	@NotNull(message="passenger details are required")
 	private List<PassengerWrapper> passenger;
 //	private List<Integer> seatNumbers;
+//	private boolean roundTrip;
 }

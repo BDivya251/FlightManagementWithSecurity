@@ -26,7 +26,8 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         // Allow public endpoints without token
-        if (path.equals("/login") || path.equals("/register")) {
+        if (path.equals("/login") || path.equals("/register") ||
+        		path.startsWith("/flight-service/flight/search")) {
             return chain.filter(exchange);
         }
 
@@ -65,7 +66,13 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
                     }
 
                     //  Role based access
-                    if (path.startsWith("/flight-service/") && !"ROLE_ADMIN".equals(role)) {
+//                    if (path.startsWith("/flight-service/") && !"ROLE_ADMIN".equals(role))
+                    if (
+                    	    path.startsWith("/flight-service/flight") &&
+                    	    !path.startsWith("/flight-service/flight/search") &&
+                    	    !"ROLE_ADMIN".equals(role)
+                    	)
+                    {
                         exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                         return exchange.getResponse().setComplete();
                     }

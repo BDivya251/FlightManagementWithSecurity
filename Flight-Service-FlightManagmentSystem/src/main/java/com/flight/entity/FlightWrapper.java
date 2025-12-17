@@ -39,4 +39,6 @@ public class FlightWrapper {
 	private Float ticketPrice;
 	@NotNull(message="airline id of this flight is required")
 	private Integer airline;
+//	@NotNull(message="roundTrip details are required")
+//	private Boolean roundTrip;
 }
