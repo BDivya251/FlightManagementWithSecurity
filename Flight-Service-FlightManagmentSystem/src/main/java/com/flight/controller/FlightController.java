@@ -36,7 +36,7 @@ public class FlightController {
 	}
 
 	@GetMapping("/search")
-	public List<FlightWrapper> searchFligght(@RequestParam String departure, @RequestParam String arrival,@RequestParam LocalDate date) {
+	public List<FlightInventory> searchFligght(@RequestParam String departure, @RequestParam String arrival,@RequestParam LocalDate date) {
 		return flightService.getFlightDetails(departure, arrival,date);
 	}
 	
@@ -55,6 +55,11 @@ public class FlightController {
 	@GetMapping("/inventory/{id}")
 	public FlightInventory getInventoryById(@PathVariable Integer id) {
 		return flightService.getInventoryById(id);
+	}
+	
+	@GetMapping("/airline/{id}")
+	public List<FlightInventory> getInventoryByAirlineId(@PathVariable Integer id){
+		return flightService.getFlightByAirlineId(id);
 	}
 
 }

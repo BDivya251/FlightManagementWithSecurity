@@ -1,8 +1,11 @@
 package com.book.entity;
 
 
-import java.sql.Date;
-import java.sql.Time;
+//import java.sql.Date;
+
+//import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.annotation.Generated;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 
 
+//LocalDate
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,9 +27,9 @@ public class FlightInventory {
     private String flightNumber;
     private String departure;           
     private String arrival;             
-    private Date travelDate;          
-    private Time departureTime;      
-    private Time arrivalTime;         
+    private LocalDate travelDate;          
+    private LocalTime departureTime;      
+    private LocalTime arrivalTime;         
     private Integer availableSeats;
     private float ticketPrice;
 }

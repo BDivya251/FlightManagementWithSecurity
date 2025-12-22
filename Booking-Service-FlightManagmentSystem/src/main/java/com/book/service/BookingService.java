@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.book.config.RabbitMQConfig;
 //import com.boo.dto.BookingEmailEvent;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,13 +71,20 @@ public class BookingService {
 			throw new NoEnoughSeatNumbers("seat numbers and passenger details are not matching");
 		}
 		Booking book = new Booking();
-		LocalDate ld = LocalDate.now();
+//		LocalDate ld = LocalDate.now();
 		String pnr = UUID.randomUUID().toString();
 		book.setPnr(pnr);
-		Date d = Date.valueOf(ld);
+		LocalDate d = LocalDate.now();
 		book.setBookingDate(d);
+		book.setBookingTime(LocalTime.now());
+		
 		book.setEmail(bookingWrapper.getEmail());
+	
 		book.setFlightNumber(flight.getFlightNumber());
+//		flight.getArrivalTime()
+//		flight.getDepartureTime()
+		book.setDepartureDate(flight.getTravelDate());
+		book.setDepartureTime(flight.getArrivalTime());
 		book.setSeatsBooked(bookingWrapper.getSeatsBooked());
 		List<Passenger> passengers = new ArrayList<>();
 		List<Integer> bookedSeats = passengerRepository.getBookedSeatNumbers(flight.getFlightNumber());
@@ -86,6 +96,7 @@ public class BookingService {
 		}
 		else {
 		flight.setAvailableSeats(seats-bookingWrapper.getSeatsBooked());
+		System.out.println("Available seats in "+flight.getId()+" "+flight.getAvailableSeats());
 		}
 		for(PassengerWrapper p:bookingWrapper.getPassenger()) {
 			 if (bookedSeats.contains(p.getSeatNumber())) {
@@ -94,18 +105,20 @@ public class BookingService {
 			Passenger psg = converters.convertToPassenger(p);
 			passengers.add(psg);
 			psg.setBooking(book);
-//			passengerRepository.save(psg);
+		
 		}
 		book.setPassengers(passengers);
-		
+		book.setDepartureDate(flight.getTravelDate());
+		book.setDepartureTime(flight.getArrivalTime());
+//		book.setBookingDate();
 		book.setStatus("Booked");
 		book.setTotalAmount(bookingWrapper.getSeatsBooked() * flight.getTicketPrice());
 		Booking b = bookingRepository.save(book);
-		passengerRepository.saveAll(passengers);
+//		passengerRepository.saveAll(passengers);
 		System.out.println(" About to get response");
 
 		BookingEmailEvent event = new BookingEmailEvent(b.getPnr(), b.getEmail(),
-				"Your booking with PNR " + b.getPnr() + " is confirmed!");
+				"Your booking with PNR " + b.getPnr() + " is confirmed!"+b.getPassengers());
 		rabbitTemplate.convertAndSend(RabbitMQConfig.EMAIL_EXCHANGE, RabbitMQConfig.EMAIL_ROUTING_KEY, event);
 		return pnr;
 	}
@@ -132,6 +145,21 @@ public class BookingService {
 		Booking b = bookingRepository.findById(pnr).orElseThrow(() -> new PnrNotFoundException("wrong pnr number"));
 		if (b.getStatus().equals("Cancelled")) {
 			throw new AlreadyCancelled("Flight already cancelled");
+		}
+//		FlightInventory flight = getFlightWithCircuitBreaker(b.getFlightNumber());
+//		b.getDepartureDate()
+//		b.getDepartureTime()
+//		b.getBookingDate()
+//		b.getBookingTime()
+		LocalDateTime departureDateTime =
+		        LocalDateTime.of(b.getDepartureDate(), b.getDepartureTime());
+
+		LocalDateTime bookingDateTime =
+		        LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
+
+		long hoursLeft = Duration.between(bookingDateTime, departureDateTime).toHours();
+		if(hoursLeft<24) {
+			throw new AlreadyCancelled("Booking cannot be cancelled...  YOur flight will departure in less than 24 hours");
 		}
 		b.setStatus("Cancelled");
 		BookingEmailEvent event = new BookingEmailEvent(b.getPnr(), b.getEmail(),

@@ -2,6 +2,7 @@
 package com.security.controller;
 
 import java.security.Key;
+import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -42,7 +43,8 @@ public class AuthController {
     	System.out.println(user.getPassword());
 //    	System.out.println()
     	User dbuser=repo.findByUsername(user.getUsername());
-    	if(dbuser!=null) {
+    	User dbemail = repo.findByEmail(user.getEmail());
+    	if(dbuser!=null || dbemail!=null) {
     		System.out.println("Already existed");
     		return new ResponseEntity("Already existed",HttpStatus.BAD_REQUEST);
     	}
@@ -65,7 +67,28 @@ public class AuthController {
         }
         return "Invalid username or password";
     }
-
+    @PostMapping("/change-password")
+    public String changePassword(@RequestBody ChangePasswordReq res) {
+    		User dbuser = repo.findByUsername(res.username);
+    		 if (dbuser == null) {
+    		        return "User not found";
+    		    }
+    		 if (!encoder.matches(res.oldPassword, dbuser.getPassword())) {
+    		        return "Old password is incorrect";
+    		    }
+    		if(encoder.matches(res.newPassword, dbuser.getPassword())) {
+    			return "Give a new Password";
+    		}
+    		if(dbuser!=null && encoder.matches(res.oldPassword,dbuser.getPassword())) {
+    			dbuser.setPassword(encoder.encode(res.newPassword));
+    			repo.save(dbuser);
+    			System.out.println(res.newPassword);
+    			return "Successfully changed";
+    		}
+    		else {
+    			return "Error in changing the password";
+    		}
+    }
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
     	 String token1 = authHeader.substring(7);
@@ -94,10 +117,27 @@ public class AuthController {
                 .getBody();
     }
 
-    @GetMapping("/getRole")
-    public String extractRole(@RequestBody String token) {
-        return extractAllClaims(token).get("role", String.class);
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserDetails(
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7); // remove Bearer
+
+        Claims claims = extractAllClaims(token);
+
+        String username = claims.getSubject();
+        String email = claims.get("email", String.class);
+        String role = claims.get("role", String.class);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "username", username,
+                "email", email,
+                "role", role
+            )
+        );
     }
+
     
     @GetMapping("/validate-token")
     public boolean validateToken(@RequestHeader("Authorization") String authHeader) {

@@ -1,5 +1,6 @@
 package com.flight.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,4 +26,10 @@ public class AirlineService {
 			throw new AirlineAlreadyExist("ailine already exist");
 		}
 	
-}}
+}
+	public List<Airline> getAirlines(){
+		return airlineRepository.findAll();
+	}
+	
+	
+}

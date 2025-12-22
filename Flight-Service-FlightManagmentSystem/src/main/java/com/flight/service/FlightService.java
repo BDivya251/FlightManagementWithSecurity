@@ -59,16 +59,16 @@ public class FlightService {
 
 	}
 
-	public List<FlightWrapper> getFlightDetails(String departure, String arrival,LocalDate date) {
+	public List<FlightInventory> getFlightDetails(String departure, String arrival,LocalDate date) {
 //		return flightRepository.
 		List<FlightInventory> flights = flightRepository.findByDepartureAndArrivalAndTravelDate(departure, arrival,date);
-		List<FlightWrapper> flightWrappers = new ArrayList<>();
-		System.out.println(flights);
-		for (int i = 0; i < flights.size(); i++) {
-			FlightWrapper wrap = converters.mapToWrapper(flights.get(i));
-			flightWrappers.add(wrap);
-		}
-		return flightWrappers;
+//		List<FlightWrapper> flightWrappers = new ArrayList<>();
+//		System.out.println(flights);
+//		for (int i = 0; i < flights.size(); i++) {
+//			FlightWrapper wrap = converters.mapToWrapper(flights.get(i));
+//			flightWrappers.add(wrap);
+//		}
+		return flights;
 	}
 	public FlightSearchResponseRoundTrip getRoundTripFlights(
 	        String departure,
@@ -107,5 +107,10 @@ public class FlightService {
 
 	public FlightInventory getInventoryById(Integer id) {
 		return flightRepository.findById(id).orElseThrow(() -> new FlightNotFoundException("Flight Inventory not found"));
+	}
+	
+	public List<FlightInventory> getFlightByAirlineId(Integer id){
+		System.out.println(id);
+		return flightRepository.findByAirline_Id(id);
 	}
 }

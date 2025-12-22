@@ -1,74 +1,85 @@
-version: '3.8'
-
 services:
 
   mysql:
     image: mysql:8
     container_name: mysql
-    restart: always
+    # restart: always
     environment:
       MYSQL_ROOT_PASSWORD: divya
     volumes:
       - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
-    ports:
-      - "3307:3306"
+    # ports:
+    #   - "3307:3306"
+
 
   eureka-server:
-    image: eureka-server
+    build: ./eureka-FlightManagmentSystem-1
     container_name: eureka-server
-    restart: always
-    depends_on:
-      - mysql
+    # restart: always
     ports:
       - "8761:8761"
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
 
   config-server:
-    image: config-server
+    build: ./congif_server
     container_name: config-server
-    restart: always
+    # restart: always
     depends_on:
       - eureka-server
     ports:
       - "8888:8888"
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
 
   api-gateway:
-    image: api-gateway
+    build: ./api-gateway
     container_name: api-gateway
-    restart: always
+    # restart: always
     depends_on:
       - config-server
+      - eureka-server
     ports:
-      - "9090:9090"
+      - "8123:8123"
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
 
   simple-security:
-    image: simple-security
+    build: ./simpleSecurity
     container_name: simple-security
-    restart: always
+    # restart: always
     depends_on:
       - mysql
       - config-server
       - eureka-server
     environment:
-      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CONFIG_IMPORT= optional:configserver:http://config-server:8888
     ports:
       - "8085:8085"
+   
 
   flight-service:
-    image: flight-service
+    build: ./Flight-Service-FlightManagmentSystem
     container_name: flight-service
-    restart: always
+    # restart: always
     depends_on:
       - mysql
       - config-server
+      - eureka-server
     ports:
       - "8081:8081"
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
 
   booking-service:
-    image: booking-service
+    build: ./Booking-Service-FlightManagmentSystem
     container_name: booking-service
-    restart: always
+    # restart: always
     depends_on:
       - mysql
       - config-server
     ports:
       - "8083:8083"
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker

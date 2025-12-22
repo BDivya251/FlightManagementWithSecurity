@@ -19,4 +19,5 @@ public interface FlightRepository extends JpaRepository<FlightInventory, Integer
 			String arrival);
 
 	public List<FlightInventory> findByDepartureAndArrivalAndTravelDate(String departure, String arrival, LocalDate date);
+	public List<FlightInventory> findByAirline_Id(Integer airlineid);
 }

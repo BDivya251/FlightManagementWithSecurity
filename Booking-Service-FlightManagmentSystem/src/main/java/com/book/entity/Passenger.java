@@ -20,7 +20,7 @@ public class Passenger {
     private Integer seatNumber;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @JoinColumn(name = "booking_id",nullable=false)
     @JsonBackReference
     private Booking booking;
 }

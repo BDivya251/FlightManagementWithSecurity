@@ -1,0 +1,29 @@
+[35mBooking-Service-FlightManagmentSystem/src/main/java/com/book/security/SecurityConfig.java[m[36m:[m//////        config.setAllowedOrigins(List.of("http://[1;31mlocalhost[m:4200"));
+[35mBooking-Service-FlightManagmentSystem/src/main/java/com/book/security/SecurityConfig.java[m[36m:[m//        config.setAllowedOrigins(List.of("http://[1;31mlocalhost[m:4200"));
+[35mBooking-Service-FlightManagmentSystem/src/main/resources/application.properties[m[36m:[m#spring.datasource.url=jdbc:mysql://[1;31mlocalhost[m:3306/bookdb
+[35mBooking-Service-FlightManagmentSystem/src/main/resources/application.properties[m[36m:[m#eureka.client.service-url.defaultZone=http://[1;31mlocalhost[m:8761/eureka/
+[35mFlight-Service-FlightManagmentSystem/src/main/resources/application.properties[m[36m:[m#spring.datasource.url=jdbc:mysql://[1;31mlocalhost[m:3306/flightdb
+[35mFlight-Service-FlightManagmentSystem/src/main/resources/application.properties[m[36m:[m#eureka.client.service-url.defaultZone=http://[1;31mlocalhost[m:8761/eureka/
+[35mFlight-Service-FlightManagmentSystem/src/main/resources/bootstrap.properties[m[36m:[m#spring.config.import=optional:configserver:http://[1;31mlocalhost[m:8888
+[35mapi-gateway/src/main/java/com/practise2/security/JwtGatewayFilter.java[m[36m:[m    private final WebClient webClient = WebClient.create("http://[1;31mlocalhost[m:8085"); // security service port
+[35mapi-gateway/src/main/java/com/practise2/security/SecurityConfig.java[m[36m:[m//	        config.setAllowedOrigins(List.of("http://[1;31mlocalhost[m:4200"));
+[35mapi-gateway/src/main/java/com/practise2/security/SecurityConfig.java[m[36m:[m        config.setAllowedOrigins(List.of("http://[1;31mlocalhost[m:4200"));
+[35mapi-gateway/src/main/resources/application.properties[m[36m:[m#eureka.client.service-url.defaultZone=http://[1;31mlocalhost[m:8761/eureka/
+[35mcongif_server/src/main/resources/application.properties[m[36m:[m#eureka.client.service-url.defaultZone=http://[1;31mlocalhost[m:8761/eureka/
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/flight-service/flight/airline/inventary/add",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/flight-service/flight/search?arrival=Delhi&departure=Hyderabad",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/booking-service/flight/booking",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/booking-service/flight/ticket?id=203de36a-1",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/booking-service/flight/booking/cancel?id=203de36a-1",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/booking-service/flight/booking/history?email=divyabathini08@gmail.com",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/flight-service/flight/airline/inventary/add",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35mflightDB-microservice.postman_collection.json[m[36m:[m					"raw": "http://[1;31mlocalhost[m:8123/flight-service/flight/airline/inventary/add",
+[35mflightDB-microservice.postman_collection.json[m[36m:[m						"[1;31mlocalhost[m"
+[35msimpleSecurity/src/main/java/com/security/config/WebConfig.java[m[36m:[m            .allowedOrigins("http://[1;31mlocalhost[m:4200")
