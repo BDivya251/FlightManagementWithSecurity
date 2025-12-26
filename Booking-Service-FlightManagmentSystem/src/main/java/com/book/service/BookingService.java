@@ -172,4 +172,10 @@ public class BookingService {
 	public List<Booking> getBookingByE(String email) {
 		return bookingRepository.findByEmail(email);
 	}
+	
+	public List<Integer> getBookedSeats(String flightNumber, LocalDate date) {
+	    return passengerRepository.findBookedSeats(flightNumber, date);
+	}
+
+
 }

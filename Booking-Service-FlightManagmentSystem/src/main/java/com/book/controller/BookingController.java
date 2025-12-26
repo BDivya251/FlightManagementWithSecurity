@@ -1,9 +1,11 @@
 package com.book.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,4 +52,13 @@ public class BookingController {
 		bookingService.cancelBooking(id);
 		return ResponseEntity.noContent().build();
 	}
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/booked-seats")
+	public List<Integer> getBookedSeats(
+	        @RequestParam String flightNumber,
+	        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+	) {
+	    return bookingService.getBookedSeats(flightNumber, date);
+	}
+
 }

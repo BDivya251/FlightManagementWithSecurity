@@ -3,24 +3,53 @@ package com.security.controller;
 
 import java.security.Key;
 import java.util.Map;
-
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import org.springframework.web.bind.annotation.*;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.security.dto.DiscordAuthReuest;
+import com.security.dto.GoogleTokenRequest;
 import com.security.entity.TokenBlacklist;
 import com.security.entity.User;
 import com.security.repository.TokenBlacklistRepository;
 import com.security.repository.UserRepository;
+import com.security.service.PasswordResetService;
 import com.security.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
+
 
 @RestController
 public class AuthController {
@@ -30,13 +59,167 @@ public class AuthController {
 
     @Autowired
     private UserRepository repo;
+    
+    @Autowired
+    private JavaMailSender mailSender;
+    
+    @Autowired
+    private PasswordResetService passwordResetService;
 
     @Autowired
     private PasswordEncoder encoder;
 
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @Value("${discord.client.id}")
+    private String discordClientId;
 
+    @Value("${discord.client.secret}")
+    private String discordClientSecret;
+
+    @Value("${discord.redirect.uri}")
+    private String discordRedirectUri;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    
+    private final GoogleIdTokenVerifier verifier;
+    public AuthController(GoogleIdTokenVerifier verifier) {
+        this.verifier = verifier;
+    }
+    
+    @GetMapping("/mail-test")
+    public String testMail() {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo("test@example.com");
+        msg.setSubject("Test");
+        msg.setText("Hello from Spring");
+
+        mailSender.send(msg);
+        JavaMailSenderImpl impl = (JavaMailSenderImpl)mailSender;
+        System.out.println("SMTP HOST: " + impl.getHost());
+        System.out.println("SMTP PORT: " + impl.getPort());
+        System.out.println("SMTP USER: " + impl.getUsername());
+//        System.out.println("SMTP HOST = "+mailSender.getJavaMailProperties().get("mail.smpt.host"));
+        return "sent";
+    }
+
+    
+    
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String email) {
+        passwordResetService.sendResetLink(email);
+        return "Password reset link sent to email";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(
+            @RequestParam String token,
+            @RequestParam String newPassword) {
+
+        passwordResetService.resetPassword(token, newPassword);
+        return "Password updated successfully";
+    }
+    
+    
+    
+    @PostMapping("/google")
+    public Map<String, String> googleLogin(@RequestBody GoogleTokenRequest request) throws Exception {
+
+        GoogleIdToken idToken = verifier.verify(request.getToken());
+
+        if (idToken == null) {
+            throw new RuntimeException("Invalid Google token");
+        }
+
+        String email = idToken.getPayload().getEmail();
+
+        User user = repo.findByEmail(email);
+        if (user == null) {
+            user = User.builder()
+                    .email(email)
+                    .username(email)
+                    .password(null)
+                    .role("ROLE_USER")
+                    .build();
+            user = repo.save(user);
+        }
+            
+//          return "User logged in: " + user.getEmail() + " role: " + user.getRole();
+        String token = jwtUtil.generateToken(user);
+
+        return Map.of(
+            "token", token,
+            "email", user.getEmail(),
+            "role", user.getRole()
+        );
+
+    }
+    
+    @PostMapping("/discord")
+    public Map<String, String> discordLogin(@RequestBody DiscordAuthReuest request) {
+
+        // 1️ Exchange code → access token
+        String tokenUrl = "https://discord.com/api/oauth2/token";
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", discordClientId);
+        body.add("client_secret", discordClientSecret);
+        body.add("grant_type", "authorization_code");
+        body.add("code", request.getCode());
+        body.add("redirect_uri", discordRedirectUri);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> entity =
+                new HttpEntity<>(body, headers);
+
+        Map tokenResponse = restTemplate.postForObject(tokenUrl, entity, Map.class);
+
+        String accessToken = (String) tokenResponse.get("access_token");
+
+        if (accessToken == null) {
+            throw new RuntimeException("Discord access token not received");
+        }
+
+        // 2️ Get Discord user info
+        HttpHeaders userHeaders = new HttpHeaders();
+        userHeaders.setBearerAuth(accessToken);
+
+        Map userResponse = restTemplate.exchange(
+                "https://discord.com/api/users/@me",
+                HttpMethod.GET,
+                new HttpEntity<>(userHeaders),
+                Map.class
+        ).getBody();
+
+        String email = (String) userResponse.get("email");
+        String username = (String) userResponse.get("username");
+
+        // 3️ Create / reuse user
+        User user = repo.findByEmail(email);
+        if (user == null) {
+            user = User.builder()
+                    .username(email)
+                    .email(email)
+                    .password(null)
+                    .role("ROLE_USER")
+                    .build();
+            user = repo.save(user);
+        }
+
+        
+        return Map.of(
+        	    "token", jwtUtil.generateToken(user),
+        	    "email", user.getEmail(),
+        	    "username", user.getUsername()
+        	);
+    }
+
+    
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
     	System.out.println("regsitered"+user.getUsername());
@@ -137,6 +320,7 @@ public class AuthController {
             )
         );
     }
+    
 
     
     @GetMapping("/validate-token")

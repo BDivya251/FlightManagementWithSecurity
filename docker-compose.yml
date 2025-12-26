@@ -1,85 +1,85 @@
+version: "3.8"
+
 services:
 
+  # MYSQL DATABASE
   mysql:
     image: mysql:8
     container_name: mysql
-    # restart: always
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: divya
+      MYSQL_DATABASE: flightdb
+    ports:
+      - "3306:3306"
     volumes:
-      - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
-    # ports:
-    #   - "3307:3306"
+      - mysql_data:/var/lib/mysql
 
+  # RABBITMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
+  # EUREKA SERVER
   eureka-server:
-    build: ./eureka-FlightManagmentSystem-1
+    image: eureka-server
     container_name: eureka-server
-    # restart: always
     ports:
       - "8761:8761"
-    environment:
-      - SPRING_PROFILE_ACTIVE=docker
-
-  config-server:
-    build: ./congif_server
-    container_name: config-server
-    # restart: always
     depends_on:
-      - eureka-server
+      - mysql
+
+  # CONFIG SERVER (OPTIONAL)
+  config-server:
+    image: config-server
+    container_name: config-server
     ports:
       - "8888:8888"
-    environment:
-      - SPRING_PROFILE_ACTIVE=docker
-
-  api-gateway:
-    build: ./api-gateway
-    container_name: api-gateway
-    # restart: always
     depends_on:
-      - config-server
       - eureka-server
+
+  # API GATEWAY
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
     ports:
       - "8123:8123"
-    environment:
-      - SPRING_PROFILE_ACTIVE=docker
-
-  simple-security:
-    build: ./simpleSecurity
-    container_name: simple-security
-    # restart: always
     depends_on:
-      - mysql
-      - config-server
       - eureka-server
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CONFIG_IMPORT= optional:configserver:http://config-server:8888
-    ports:
-      - "8085:8085"
-   
 
+  # FLIGHT SERVICE
   flight-service:
-    build: ./Flight-Service-FlightManagmentSystem
+    image: flight-service
     container_name: flight-service
-    # restart: always
-    depends_on:
-      - mysql
-      - config-server
-      - eureka-server
     ports:
-      - "8081:8081"
-    environment:
-      - SPRING_PROFILE_ACTIVE=docker
-
-  booking-service:
-    build: ./Booking-Service-FlightManagmentSystem
-    container_name: booking-service
-    # restart: always
+      - "8080:8080"
     depends_on:
       - mysql
-      - config-server
+      - eureka-server
+
+  # BOOKING SERVICE
+  booking-service:
+    image: booking-service
+    container_name: booking-service
     ports:
       - "8083:8083"
-    environment:
-      - SPRING_PROFILE_ACTIVE=docker
+    depends_on:
+      - mysql
+      - rabbitmq
+      - eureka-server
+
+  # SIMPLE SECURITY SERVICE
+  simple-security:
+    image: simplesecurity
+    container_name: simple-security
+    ports:
+      - "8085:8085"
+    depends_on:
+      - mysql
+      - eureka-server
+
+volumes:
+  mysql_data:

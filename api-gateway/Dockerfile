@@ -1,4 +1,11 @@
-FROM eclipse-temurin:21-jre
+#FROM maven:3.9.9-eclipse-temurin-21 AS build
+#WORKDIR /app
+#COPY pom.xml .
+#COPY src ./src
+#RUN mvn clean package -Dmaven.test.skip=true
+
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-COPY target/*.jar app.jar
-ENTRYPOINT ["java","-jar","app.jar"]
+COPY target/*SNAPSHOT.jar app.jar
+EXPOSE 8123
+ENTRYPOINT ["java", "-jar", "app.jar"]
